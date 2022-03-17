@@ -125,10 +125,8 @@ class _AgeCalcState extends State<AgeCalcScreen> {
                           "\n" +
                           _timeString!.hour.toString() +
                           ' heures ' +
-                          "\n" +
                           _timeString!.minute.toString() +
                           ' minutes  ' +
-                          "\n" +
                           _timeString!.second.toString() +
                           ' secondes.'
                       : 'Pas de date sélectionnée :)',
