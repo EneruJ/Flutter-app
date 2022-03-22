@@ -36,6 +36,16 @@ dependencies:
   cupertino_icons: ^1.0.2
   age_calculator: ^1.0.0
   intl: ^0.17.0
+  form_bloc: ^0.30.0
+  flutter_form_bloc: ^0.30.1
+  validators: ^3.0.0
+  hive: ^2.1.0
+  hive_flutter: ^1.1.0
+  hive_generator: ^1.1.2
+  build_runner: ^2.1.8
+  json_serializable: ^6.1.5
+  built_value_generator: ^8.1.4
+  checkbox_grouped: ^1.8.0
 
 dev_dependencies:
   flutter_test:

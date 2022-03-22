@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:tp/age.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:tp/note.dart';
 
-void main() {
+
+
+void main() async {
+  await Hive.initFlutter();
+  // Open the NoteBox
+  Hive.registerAdapter(NoteAdapter());
+
+  await Hive.openBox('NoteBox');
   runApp(
     MaterialApp(
       title: 'Named Routes Demo',
@@ -55,6 +64,7 @@ class _FirstScreenState extends State<FirstScreen> {
       appBar: AppBar(
         title: const Text('Compteur'),
       ),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +115,7 @@ class SecondScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Bravo ! Tu peux passer à l\'exercice 2 ou retourner sur le compteur.',
+                'Bravo ! Tu peux passer à l\'exercice 2, l\'exercice 3 ou retourner sur le compteur.',
               ),
               const SizedBox(height: 10),
               ElevatedButton(
@@ -126,8 +136,446 @@ class SecondScreen extends StatelessWidget {
                 },
                 child: const Text('Exercice n°2'),
               ),
+              ElevatedButton(
+                // Envoie l'utilisateur sur la page du deuxième exercice lorsque l'utilisateur clique sur le bouton.
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const NoteApp()));
+                },
+                child: const Text('Exercice n°3'),
+              ),
             ]),
       ),
     );
   }
 }
+
+class NoteApp extends StatelessWidget {
+  const NoteApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Hive Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const InfoScreen(),
+    );
+  }
+}
+
+class InfoScreen extends StatefulWidget {
+  const InfoScreen({Key? key}) : super(key: key);
+
+  @override
+  _InfoScreenState createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends State<InfoScreen> {
+  late final Box contactBox;
+
+  // Delete info from Note box
+  _deleteInfo(int index) {
+    contactBox.deleteAt(index);
+    print('Item deleted from box at index: $index');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Get reference to an already opened box
+    contactBox = Hive.box('NoteBox');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Propositions d\'alternance'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const AddScreen(),
+          ),
+        ),
+        child: const Icon(Icons.add),
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: contactBox.listenable(),
+        builder: (context, Box box, widget) {
+          if (box.isEmpty) {
+            return const Center(
+              child: Text('Empty'),
+            );
+          } else {
+            return ListView.builder(
+              itemCount: box.length,
+              itemBuilder: (context, index) {
+                var currentBox = box;
+                var NoteData = currentBox.getAt(index)!;
+                return InkWell(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => UpdateScreen(
+                        index: index,
+                        note: NoteData,
+                      ),
+                    ),
+                  ),
+                  child: ListTile(
+                    title: Text(NoteData.name),
+                    subtitle: Text(NoteData.description + "\nSalaire net : " + NoteData.sNet + " euros."),
+                    trailing: IconButton(
+                      onPressed: () => _deleteInfo(index),
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}
+
+class AddScreen extends StatefulWidget {
+  const AddScreen({Key? key}) : super(key: key);
+
+  @override
+  _AddScreenState createState() => _AddScreenState();
+}
+class _AddScreenState extends State<AddScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Add Info'),
+      ),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: AddNoteForm(),
+      ),
+    );
+  }
+}
+
+class AddNoteForm extends StatefulWidget {
+  const AddNoteForm({Key? key}) : super(key: key);
+  @override
+  _AddNoteFormState createState() => _AddNoteFormState();
+}
+
+class _AddNoteFormState extends State<AddNoteForm> {
+  late final Box box;
+  late String val = "";
+  late double valN = 0.0;
+  final _nameController = TextEditingController();
+  final _sBrutController = TextEditingController();
+  final _statutController = TextEditingController();
+  final _sNetController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+
+  final _NoteFormKey = GlobalKey<FormState>();
+  _addInfo() async {
+    Note newNote = Note(
+      name: _nameController.text,
+      sBrut: _sBrutController.text,
+      statut: _statutController.text,
+      sNet: _sNetController.text,
+      description: _descriptionController.text,
+
+    );
+    box.add(newNote);
+    print('Info added to box!');
+  }
+
+  String? _fieldValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Field can\'t be empty';
+    }
+    return null;
+  }
+  @override
+  void initState() {
+    super.initState();
+    // Get reference to an already opened box
+    box = Hive.box('NoteBox');
+  }
+
+  void calcSalaire() {
+    var dsalaire = double.parse(_sBrutController.text);
+    var dpourcentage = double.parse(val);
+    _sNetController.text = (dsalaire * (1 - dpourcentage)).toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _NoteFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Nom de l\'entreprise'),
+          TextFormField(
+            controller: _nameController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Salaire Brut'),
+          TextFormField(
+            controller: _sBrutController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Statut'),
+          ListTile(
+            title: const Text("Cadre (25%)"),
+            leading: Radio(
+              value: "0.25",
+              groupValue: val,
+              onChanged: (v) {
+                setState(() {
+                  val = v as String;
+                  calcSalaire();
+                });
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+          ListTile(
+            title: const Text("Non cadre (22%)"),
+            leading: Radio(
+              value: "0.22",
+              groupValue: val,
+              onChanged: (v) {
+                setState(() {
+                  val = v as String;
+                  calcSalaire();
+                });
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Salaire Net'),
+          TextFormField(
+            enabled: false,
+            controller: _sNetController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Description'),
+          TextFormField(
+            controller: _descriptionController,
+            validator: _fieldValidator,
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 24.0),
+            child: SizedBox(
+              width: double.maxFinite,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_NoteFormKey.currentState!.validate()) {
+                    _addInfo();
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Add'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class UpdateScreen extends StatefulWidget {
+  final int index;
+  final Note note;
+
+  const UpdateScreen({
+    required this.index,
+    required this.note,
+  });
+
+  @override
+  _UpdateScreenState createState() => _UpdateScreenState();
+}
+
+class _UpdateScreenState extends State<UpdateScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Update Info'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: UpdateNoteForm(
+          index: widget.index,
+          note: widget.note,
+        ),
+      ),
+    );
+  }
+}
+class UpdateNoteForm extends StatefulWidget {
+  final int index;
+  final Note note;
+
+  const UpdateNoteForm({
+    required this.index,
+    required this.note,
+  });
+
+  @override
+  _UpdateNoteFormState createState() => _UpdateNoteFormState();
+}
+class _UpdateNoteFormState extends State<UpdateNoteForm> {
+  final _NoteFormKey = GlobalKey<FormState>();
+
+  late final _nameController;
+  late final _sBrutController;
+  late final _statutController;
+  late final _sNetController;
+  late final _descriptionController;
+  late final Box box;
+  late String val = "";
+
+  String? _fieldValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Field can\'t be empty';
+    }
+    return null;
+  }
+
+  // Update info of Note box
+  _updateInfo() {
+    Note newNote = Note(
+      name: _nameController.text,
+      sBrut: _sBrutController.text,
+      statut: _statutController.text,
+      sNet: _sNetController.text,
+      description: _descriptionController.text,
+    );
+
+    box.putAt(widget.index, newNote);
+
+    print('Info updated in box!');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Get reference to an already opened box
+    box = Hive.box('NoteBox');
+    _nameController = TextEditingController(text: widget.note.name);
+    _sBrutController = TextEditingController(text: widget.note.sBrut);
+    _statutController = TextEditingController(text: widget.note.statut);
+    _sNetController = TextEditingController(text: widget.note.sNet);
+    _descriptionController = TextEditingController(text: widget.note.description);
+  }
+  void calcSalaire() {
+    var dsalaire = double.parse(_sBrutController.text);
+    var dpourcentage = double.parse(val);
+    _sNetController.text = (dsalaire * (1 - dpourcentage)).toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _NoteFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Nom de l\'entreprise'),
+          TextFormField(
+            controller: _nameController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Salaire Brut'),
+          TextFormField(
+            controller: _sBrutController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Statut'),
+          ListTile(
+            title: const Text("Cadre (25%)"),
+            leading: Radio(
+              value: "0.25",
+              groupValue: val,
+              onChanged: (v) {
+                setState(() {
+                  val = v as String;
+                  calcSalaire();
+                });
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+          ListTile(
+            title: const Text("Non cadre (22%)"),
+            leading: Radio(
+              value: "0.22",
+              groupValue: val,
+              onChanged: (v) {
+                setState(() {
+                  val = v as String;
+                  calcSalaire();
+                });
+              },
+              activeColor: Colors.green,
+            ),
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Salaire Net'),
+          TextFormField(
+            enabled: false,
+            controller: _sNetController,
+            validator: _fieldValidator,
+          ),
+          const SizedBox(height: 24.0),
+          const Text('Description'),
+          TextFormField(
+            controller: _descriptionController,
+            validator: _fieldValidator,
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 24.0),
+            child: SizedBox(
+              width: double.maxFinite,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (_NoteFormKey.currentState!.validate()) {
+                    _updateInfo();
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Add'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
