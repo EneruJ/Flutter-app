@@ -46,6 +46,7 @@ dependencies:
   json_serializable: ^6.1.5
   built_value_generator: ^8.1.4
   checkbox_grouped: ^1.8.0
+  get: ^4.6.1
 
 dev_dependencies:
   flutter_test:
