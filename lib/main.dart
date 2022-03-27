@@ -177,6 +177,16 @@ class TabBarDemo extends StatelessWidget {
               ],
             ),
             title: const Text('Calcul de dates'),
+            automaticallyImplyLeading: false,
+            leading: IconButton (
+              icon: const Icon(Icons.home),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FirstScreen()));
+              },
+            ),
           ),
           body: const TabBarView(
             children: [
@@ -436,7 +446,7 @@ class _InfoScreenState extends State<InfoScreen> {
   // Delete info from Note box
   _deleteInfo(int index) {
     contactBox.deleteAt(index);
-    print('Item deleted from box at index: $index');
+    print('Proposition supprimée à l`\'index: $index');
   }
 
   @override
@@ -450,7 +460,17 @@ class _InfoScreenState extends State<InfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Propositions d\'alternance'),
+        title: const Text("Mon suivi de job"),
+        automaticallyImplyLeading: false,
+        leading: IconButton (
+          icon: const Icon(Icons.home),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const FirstScreen()));
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(
@@ -465,7 +485,7 @@ class _InfoScreenState extends State<InfoScreen> {
         builder: (context, Box box, widget) {
           if (box.isEmpty) {
             return const Center(
-              child: Text('Empty'),
+              child: Text('Aucune proposition'),
             );
           } else {
             return ListView.builder(
@@ -484,7 +504,7 @@ class _InfoScreenState extends State<InfoScreen> {
                   ),
                   child: ListTile(
                     title: Text(NoteData.name),
-                    subtitle: Text(NoteData.description + "\nSalaire net : " + NoteData.sNet + " euros."),
+                    subtitle: Text("Salaire brut mensuel : " + NoteData.sBrut + " €\nSalaire net mensuel : " + NoteData.sNet + " €\nStatut proposé : " + NoteData.statut + "\nMon sentiment : \n" + NoteData.description),
                     trailing: IconButton(
                       onPressed: () => _deleteInfo(index),
                       icon: const Icon(
@@ -514,7 +534,7 @@ class _AddScreenState extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Info'),
+        title: const Text('Nouvelle proposition'),
       ),
       body: const Padding(
         padding: EdgeInsets.all(16.0),
@@ -552,7 +572,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
 
     );
     box.add(newNote);
-    print('Info added to box!');
+    print('La proposition a été ajouté à la liste!');
   }
 
   String? _fieldValidator(String? value) {
@@ -570,8 +590,15 @@ class _AddNoteFormState extends State<AddNoteForm> {
 
   void calcSalaire() {
     var dsalaire = double.parse(_sBrutController.text);
-    var dpourcentage = double.parse(val);
-    _sNetController.text = (dsalaire * (1 - dpourcentage)).toString();
+    _statutController.text = val;
+    if(val == "Cadre (25%)")
+    {
+      _sNetController.text = ((dsalaire/12) * 0.75).toString();
+    }
+    else {
+      _sNetController.text = ((dsalaire/12) * 0.78).toString();
+    }
+
   }
 
   @override
@@ -597,7 +624,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
           ListTile(
             title: const Text("Cadre (25%)"),
             leading: Radio(
-              value: "0.25",
+              value: "Cadre (25%)",
               groupValue: val,
               onChanged: (v) {
                 setState(() {
@@ -611,7 +638,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
           ListTile(
             title: const Text("Non cadre (22%)"),
             leading: Radio(
-              value: "0.22",
+              value: "Non cadre (22%)",
               groupValue: val,
               onChanged: (v) {
                 setState(() {
@@ -648,7 +675,7 @@ class _AddNoteFormState extends State<AddNoteForm> {
                     Navigator.of(context).pop();
                   }
                 },
-                child: const Text('Add'),
+                child: const Text('Ajouter'),
               ),
             ),
           ),
@@ -676,7 +703,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Update Info'),
+        title: const Text('Modifier une proposition'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -746,8 +773,15 @@ class _UpdateNoteFormState extends State<UpdateNoteForm> {
   }
   void calcSalaire() {
     var dsalaire = double.parse(_sBrutController.text);
-    var dpourcentage = double.parse(val);
-    _sNetController.text = (dsalaire * (1 - dpourcentage)).toString();
+    _statutController.text = val;
+    if(val == "Cadre (25%)")
+    {
+      _sNetController.text = ((dsalaire/12) * 0.75).toString();
+    }
+    else {
+      _sNetController.text = ((dsalaire/12) * 0.78).toString();
+    }
+
   }
 
   @override
@@ -773,7 +807,7 @@ class _UpdateNoteFormState extends State<UpdateNoteForm> {
           ListTile(
             title: const Text("Cadre (25%)"),
             leading: Radio(
-              value: "0.25",
+              value: "Cadre (25%)",
               groupValue: val,
               onChanged: (v) {
                 setState(() {
@@ -787,7 +821,7 @@ class _UpdateNoteFormState extends State<UpdateNoteForm> {
           ListTile(
             title: const Text("Non cadre (22%)"),
             leading: Radio(
-              value: "0.22",
+              value: "Non cadre (22%)",
               groupValue: val,
               onChanged: (v) {
                 setState(() {
