@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tp/note.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 
@@ -680,6 +681,9 @@ class _AddNoteFormState extends State<AddNoteForm> {
           TextFormField(
             controller: _sBrutController,
             validator: _fieldValidator,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+            ],
           ),
           const SizedBox(height: 24.0),
           const Text('Statut'),
@@ -863,6 +867,9 @@ class _UpdateNoteFormState extends State<UpdateNoteForm> {
           TextFormField(
             controller: _sBrutController,
             validator: _fieldValidator,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+            ],
           ),
           const SizedBox(height: 24.0),
           const Text('Statut'),
