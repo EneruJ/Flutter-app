@@ -47,6 +47,7 @@ dependencies:
   built_value_generator: ^8.1.4
   checkbox_grouped: ^1.8.0
   get: ^4.6.1
+  hexcolor: ^2.0.6
 
 dev_dependencies:
   flutter_test:

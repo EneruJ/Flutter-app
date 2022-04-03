@@ -18,7 +18,6 @@ class Note extends HiveObject {
   @HiveField(4)
   final String description;
 
-
   Note({
     required this.name,
     required this.sBrut,

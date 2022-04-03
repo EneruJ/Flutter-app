@@ -88,6 +88,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 onPressed: _decrementCounter,
                 label: const Text("-"),
                 heroTag: "btnDec",
+                backgroundColor: Colors.teal.shade300,
               ),
               Text(
                 '$_counter',
@@ -97,6 +98,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 onPressed: _incrementCounter,
                 label: const Text("+"),
                 heroTag: "btnInc",
+                backgroundColor: Colors.teal.shade300,
               ),
             ]),
           ],
@@ -279,6 +281,7 @@ class _AgeCalcState extends State<AgeCalcScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.teal.shade300),
                   onPressed: _presentDatePicker,
                   child: const Text('Choisis ta date d\'anniversaire')),
               Container(
@@ -442,11 +445,42 @@ class InfoScreen extends StatefulWidget {
 
 class _InfoScreenState extends State<InfoScreen> {
   late final Box contactBox;
+  bool _isShown = true;
 
   // Delete info from Note box
-  _deleteInfo(int index) {
-    contactBox.deleteAt(index);
-    print('Proposition supprimée à l`\'index: $index');
+  _deleteInfo(BuildContext context, int index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: const Text('Confirmation'),
+            content: const Text('Êtes-vous sûr de vouloir supprimer ce job ?'),
+            actions: [
+              // The "Yes" button
+              TextButton(
+                  onPressed: () {
+                    // Remove the box
+                    setState(() {
+                      _isShown = false;
+                    });
+                    contactBox.deleteAt(index);
+                    print('Proposition supprimée à l`\'index: $index');
+                    // Close the dialog
+                    Navigator.of(context, rootNavigator: true)
+                        .pop();
+                  },
+                  child: const Text('Oui')),
+              TextButton(
+                  onPressed: () {
+                    // Close the dialog
+                    Navigator.of(context, rootNavigator: true)
+                        .pop();
+                  },
+                  child: const Text('Non'))
+            ],
+          );
+        });
+
   }
 
   @override
@@ -473,6 +507,7 @@ class _InfoScreenState extends State<InfoScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.teal.shade300,
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => const AddScreen(),
@@ -489,6 +524,7 @@ class _InfoScreenState extends State<InfoScreen> {
             );
           } else {
             return ListView.builder(
+              padding: const EdgeInsets. all(15.0),
               itemCount: box.length,
               itemBuilder: (context, index) {
                 var currentBox = box;
@@ -502,16 +538,43 @@ class _InfoScreenState extends State<InfoScreen> {
                       ),
                     ),
                   ),
-                  child: ListTile(
-                    title: Text(NoteData.name),
-                    subtitle: Text("Salaire brut mensuel : " + NoteData.sBrut + " €\nSalaire net mensuel : " + NoteData.sNet + " €\nStatut proposé : " + NoteData.statut + "\nMon sentiment : \n" + NoteData.description),
-                    trailing: IconButton(
-                      onPressed: () => _deleteInfo(index),
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.red,
+                  child: Card(
+                    margin: const EdgeInsets. all(10.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: const BorderSide(
+                        color: Colors.black,
                       ),
                     ),
+                    elevation: 16,
+                    shadowColor: Colors.teal.shade300,
+                    child: ListTile(
+                      title: Text(NoteData.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      subtitle:
+                      RichText(
+                          text: TextSpan(
+                              style: const TextStyle(color: Colors.white), //apply style to all
+                              children: [
+                                const TextSpan(text: "\nSalaire brut annuel : ", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                                TextSpan(text: NoteData.sBrut, style: const TextStyle(fontSize: 15)),
+                                const TextSpan(text: " €\nSalaire net mensuel : ", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                                TextSpan(text: NoteData.sNet, style: const TextStyle(fontSize: 15)),
+                                const TextSpan(text: " €\nStatut proposé : ", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                                TextSpan(text: NoteData.statut, style: const TextStyle(fontSize: 15)),
+                                const TextSpan(text: " \nMon sentiment : ", style: TextStyle(fontStyle: FontStyle.italic, fontSize: 18)),
+                                TextSpan(text: NoteData.description, style: const TextStyle(fontSize: 15)),
+                              ]
+                          )
+                      ),
+                      trailing: IconButton(
+                      onPressed: () => _deleteInfo(context, index),
+
+                      icon: Icon(
+                      Icons.delete,
+                      color: Colors.teal.shade300,
+                      ),
+                    ),
+                  ),
                   ),
                 );
               },
@@ -593,12 +656,11 @@ class _AddNoteFormState extends State<AddNoteForm> {
     _statutController.text = val;
     if(val == "Cadre (25%)")
     {
-      _sNetController.text = ((dsalaire/12) * 0.75).toString();
+      _sNetController.text = ((dsalaire/12) * 0.75).floor().toString();
     }
     else {
-      _sNetController.text = ((dsalaire/12) * 0.78).toString();
+      _sNetController.text = ((dsalaire/12) * 0.78).floor().toString();
     }
-
   }
 
   @override
