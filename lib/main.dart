@@ -17,11 +17,11 @@ void main() async {
       title: 'Named Routes Demo',
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.cyan,
       ),
       darkTheme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.orange
+          primarySwatch: Colors.cyan
       ),
       themeMode: ThemeMode.dark,
       initialRoute: '/',
@@ -89,7 +89,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 onPressed: _decrementCounter,
                 label: const Text("-"),
                 heroTag: "btnDec",
-                backgroundColor: Colors.teal.shade300,
+                backgroundColor: Colors.cyan,
               ),
               Text(
                 '$_counter',
@@ -99,7 +99,7 @@ class _FirstScreenState extends State<FirstScreen> {
                 onPressed: _incrementCounter,
                 label: const Text("+"),
                 heroTag: "btnInc",
-                backgroundColor: Colors.teal.shade300,
+                backgroundColor: Colors.cyan,
               ),
             ]),
           ],
@@ -201,11 +201,11 @@ class TabBarDemo extends StatelessWidget {
       ),
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.cyan,
       ),
       darkTheme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.orange
+          primarySwatch: Colors.cyan
       ),
       themeMode: ThemeMode.dark,
     );
@@ -282,7 +282,7 @@ class _AgeCalcState extends State<AgeCalcScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.teal.shade300),
+                  style: ElevatedButton.styleFrom(primary: Colors.cyan),
                   onPressed: _presentDatePicker,
                   child: const Text('Choisis ta date d\'anniversaire')),
               Container(
@@ -424,11 +424,11 @@ class NoteApp extends StatelessWidget {
       title: 'Hive Demo',
       theme: ThemeData(
         brightness: Brightness.light,
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.cyan,
       ),
       darkTheme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.orange
+          primarySwatch: Colors.cyan
       ),
       themeMode: ThemeMode.dark,
       debugShowCheckedModeBanner: false,
@@ -454,7 +454,12 @@ class _InfoScreenState extends State<InfoScreen> {
         context: context,
         builder: (BuildContext ctx) {
           return AlertDialog(
-            title: const Text('Confirmation'),
+            title: Row(
+              children: const [
+                Icon(Icons.delete),
+                Text('Supprimer la proposition'),
+              ],
+            ),
             content: const Text('Êtes-vous sûr de vouloir supprimer ce job ?'),
             actions: [
               // The "Yes" button
@@ -507,14 +512,15 @@ class _InfoScreenState extends State<InfoScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal.shade300,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.cyan,
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => const AddScreen(),
           ),
         ),
-        child: const Icon(Icons.add),
+        label: Text('Nouvelle proposition'),
+        icon: const Icon(Icons.note_add),
       ),
       body: ValueListenableBuilder(
         valueListenable: contactBox.listenable(),
@@ -548,7 +554,7 @@ class _InfoScreenState extends State<InfoScreen> {
                       ),
                     ),
                     elevation: 16,
-                    shadowColor: Colors.teal.shade300,
+                    shadowColor: Colors.cyan,
                     child: ListTile(
                       title: Text(NoteData.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       subtitle:
@@ -570,9 +576,9 @@ class _InfoScreenState extends State<InfoScreen> {
                       trailing: IconButton(
                       onPressed: () => _deleteInfo(context, index),
 
-                      icon: Icon(
+                      icon: const Icon(
                       Icons.delete,
-                      color: Colors.teal.shade300,
+                      color: Colors.cyan,
                       ),
                     ),
                   ),
@@ -734,14 +740,15 @@ class _AddNoteFormState extends State<AddNoteForm> {
             child: SizedBox(
               width: double.maxFinite,
               height: 50,
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed: () {
                   if (_NoteFormKey.currentState!.validate()) {
                     _addInfo();
                     Navigator.of(context).pop();
                   }
                 },
-                child: const Text('Ajouter'),
+                icon: const Icon(Icons.thumb_up),
+                label: const Text('Ajouter la proposition'),
               ),
             ),
           ),
@@ -920,14 +927,15 @@ class _UpdateNoteFormState extends State<UpdateNoteForm> {
             child: SizedBox(
               width: double.maxFinite,
               height: 50,
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed: () {
                   if (_NoteFormKey.currentState!.validate()) {
                     _updateInfo();
                     Navigator.of(context).pop();
                   }
                 },
-                child: const Text('Add'),
+                icon: const Icon(Icons.thumb_up),
+                label: const Text('Valider les modifications'),
               ),
             ),
           ),
