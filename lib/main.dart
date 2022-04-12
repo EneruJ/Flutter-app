@@ -409,20 +409,29 @@ class _DateDiffState extends State<DateDiffScreen> {
             children: <Widget>[
               ElevatedButton(
                   onPressed: _presentDatePickerCompareD,
-                  child: Text(dateD != '' ? 'Date de départ ☑' : 'Date de départ')),
+                  child: Text(_selectedD != null ? 'Date de départ ☑' : 'Date de départ')),
               Padding(
                 padding: const EdgeInsets.only(top: 5),
                 child: ElevatedButton(
                     onPressed: _presentDatePickerCompareF,
-                    child: Text(dateF != '' ? 'Date d\'arrivée ☑' : 'Date d\'arrivée')),
+                    child: Text(_selectedF != null ? 'Date d\'arrivée ☑' : 'Date d\'arrivée')),
                 // display the selected date
               ),
               Container(
                 padding: const EdgeInsets.all(30),
-                child: Text(
+                child: Column(
+                  children: <Widget> [
+                    Text(
                   differenceDF != null ? aff! : 'Pas de dates sélectionnées :)',
-                  style: const TextStyle(fontSize: 20),
-                ),
+                  style: const TextStyle(fontSize: 20)),
+                    Text(
+                        _selectedD != null ? 'cc' : '',
+                        style: const TextStyle(fontSize: 20)),
+                    Text(
+                        _selectedF != null ? 'cc' : '',
+                        style: const TextStyle(fontSize: 20)),
+                ]
+              )
               )
             ]),
       ),
@@ -638,7 +647,7 @@ class AddNoteForm extends StatefulWidget {
 
 class _AddNoteFormState extends State<AddNoteForm> {
   late final Box box;
-  late String val = "";
+  late String val = "Cadre (25%)";
   late double valN = 0.0;
   final _nameController = TextEditingController();
   final _sBrutController = TextEditingController();
@@ -706,6 +715,9 @@ class _AddNoteFormState extends State<AddNoteForm> {
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly,
             ],
+            onChanged: (c){
+              calcSalaire();
+            },
           ),
           const SizedBox(height: 24.0),
           const Text('Statut'),
