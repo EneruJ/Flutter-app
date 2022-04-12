@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tp/note.dart';
@@ -123,11 +124,14 @@ class SecondScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Text(
-                'Hello World !',
+                'Hello World !', style: TextStyle(fontSize: 40)
               ),
               const SizedBox(height: 10),
               const Text(
-                'Bravo ! Tu peux passer à l\'exercice 2, l\'exercice 3 ou retourner sur le compteur.',
+                'Bravo !', style: TextStyle(fontSize: 20)
+              ),
+              const Text(
+              '\nTu peux passer à l\'exercice 2, l\'exercice 3 ou retourner sur le compteur.',
               ),
               const SizedBox(height: 10),
               ElevatedButton(
@@ -228,6 +232,7 @@ class _AgeCalcState extends State<AgeCalcScreen> {
   int minutes = 0;
   int secondes = 0;
   DateTime? _timeString;
+  String dateAnniv = "";
 
   // Déclaration d'une fonction permettant d'afficher le calendrier et calculer l'âge en fonction de la date sélectionnée.
   void _presentDatePicker() {
@@ -245,6 +250,7 @@ class _AgeCalcState extends State<AgeCalcScreen> {
       // Lorsque la date est sélectionnée, on la récupère et calcule l'âge de l'utilisateur en fonction d'elle.
       setState(() {
         _selectedDate = pickedDate;
+        dateAnniv = _selectedDate!.day.toString() + "-" + _selectedDate!.month.toString() + "-" + _selectedDate!.year.toString();
         year = _selectedDate!.year;
         age = DateTime.now().year - year;
         difference = DateTime.now().difference(_selectedDate!).inDays;
@@ -285,6 +291,7 @@ class _AgeCalcState extends State<AgeCalcScreen> {
                   style: ElevatedButton.styleFrom(primary: Colors.cyan),
                   onPressed: _presentDatePicker,
                   child: const Text('Choisis ta date d\'anniversaire')),
+              Text(dateAnniv),
               Container(
                 padding: const EdgeInsets.all(30),
                 alignment: Alignment.center,
@@ -328,6 +335,8 @@ class _DateDiffState extends State<DateDiffScreen> {
   String? _selectedF;
   String? _selectedD;
   String? aff;
+  String dateD = '';
+  String dateF = '';
 
   // Déclaration d'une fonction permettant de calculer la différence entre 2 dates.
   void _dateDifference() {
@@ -360,12 +369,15 @@ class _DateDiffState extends State<DateDiffScreen> {
         .then((pickedDD) {
       // Check if no date is
       _selectedD = DateFormat('yyyy-MM-dd').format(pickedDD!);
-      if (_selectedD == null || _selectedF == null) {
-        return;
+      showDD(pickedDD);
+      if (_selectedD != null && _selectedF != null) {
+        _dateDifference();
       }
     });
   }
-
+  void showDD(pickedDD){
+    dateD = pickedDD.day.toString() + "-" + pickedDD.month.toString() + "-" + pickedDD.year.toString();
+  }
   void _presentDatePickerCompareF() {
     // showDatePicker is a pre-made funtion of Flutter
     showDatePicker(
@@ -376,13 +388,16 @@ class _DateDiffState extends State<DateDiffScreen> {
         .then((pickedDF) {
       // Check if no date is selected
       _selectedF = DateFormat('yyyy-MM-dd').format(pickedDF!);
+      showDF(pickedDF);
       // Appelle la fonction _dateDifference uniquement lorsque les 2 dates à comparer sont sélectionnées.
-      if (_selectedD == null || _selectedF == null) {
-        return;
-      } else {
+      if (_selectedD != null && _selectedF != null) {
         _dateDifference();
       }
     });
+  }
+
+  void showDF(pickedDF){
+    dateF = pickedDF.day.toString() + "-" + pickedDF.month.toString() + "-" + pickedDF.year.toString();
   }
 
   @override
@@ -394,12 +409,12 @@ class _DateDiffState extends State<DateDiffScreen> {
             children: <Widget>[
               ElevatedButton(
                   onPressed: _presentDatePickerCompareD,
-                  child: const Text('Date de départ')),
+                  child: Text(dateD != '' ? 'Date de départ ☑' : 'Date de départ')),
               Padding(
                 padding: const EdgeInsets.only(top: 5),
                 child: ElevatedButton(
                     onPressed: _presentDatePickerCompareF,
-                    child: const Text('Date d\'arrivée')),
+                    child: Text(dateF != '' ? 'Date d\'arrivée ☑' : 'Date d\'arrivée')),
                 // display the selected date
               ),
               Container(
@@ -457,12 +472,20 @@ class _InfoScreenState extends State<InfoScreen> {
             title: Row(
               children: const [
                 Icon(Icons.delete),
-                Text('Supprimer la proposition'),
+                Text('Supprimer la proposition', style: TextStyle(color: Colors.red)),
               ],
             ),
             content: const Text('Êtes-vous sûr de vouloir supprimer ce job ?'),
             actions: [
               // The "Yes" button
+
+              TextButton(
+                  onPressed: () {
+                    // Close the dialog
+                    Navigator.of(context, rootNavigator: true)
+                        .pop();
+                  },
+                  child: const Text('Non')),
               TextButton(
                   onPressed: () {
                     // Remove the box
@@ -475,14 +498,7 @@ class _InfoScreenState extends State<InfoScreen> {
                     Navigator.of(context, rootNavigator: true)
                         .pop();
                   },
-                  child: const Text('Oui')),
-              TextButton(
-                  onPressed: () {
-                    // Close the dialog
-                    Navigator.of(context, rootNavigator: true)
-                        .pop();
-                  },
-                  child: const Text('Non'))
+                  child: const Text('Oui'))
             ],
           );
         });
